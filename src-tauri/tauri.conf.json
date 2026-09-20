@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Shiying",
+  "version": "0.1.1",
+  "identifier": "app.shiying.desktop",
+  "build": {"beforeDevCommand":"npm run dev","devUrl":"http://127.0.0.1:1420","beforeBuildCommand":"npm run build","frontendDist":"../dist"},
+  "app": {
+    "windows":[{"label":"main","title":"拾影 · 抖音下载","width":1180,"height":800,"minWidth":900,"minHeight":640,"center":true}],
+    "security":{"csp":"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; font-src 'self' data:"}
+  },
+  "bundle":{"active":true,"targets":["nsis"],"externalBin":["binaries/shiying-engine"],"resources":["../THIRD_PARTY_NOTICES.txt","../README.md","../LICENSE"],"icon":["icons/icon.ico","icons/icon.png"],"windows":{"nsis":{"languages":["SimpChinese","English"],"displayLanguageSelector":false}}}
+}

@@ -1,0 +1,9 @@
+[[permission]]
+identifier = "allow-main"
+description = "Local app commands only"
+commands.allow = ["engine_command", "open_login", "choose_folder", "open_folder", "clear_login", "export_diagnostics"]
+
+[[permission]]
+identifier = "allow-bridge"
+description = "Nonce-bound page response only, no filesystem or shell access"
+commands.allow = ["bridge_response"]

@@ -1,0 +1,12 @@
+[project]
+name = "shiying-engine"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["aiohttp>=3.9", "aiofiles>=23.2", "aiosqlite>=0.19", "httpx>=0.25", "rich>=13.7", "pyyaml>=6", "python-dateutil>=2.8", "gmssl>=3.2"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "pyinstaller>=6.12"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = [".", "vendor"]

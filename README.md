@@ -4,11 +4,11 @@ Windows 抖音下载桌面工具。粘贴分享链接，管理视频、图集和
 
 Douyin downloader for Windows, with a desktop GUI, persistent download queue, and local login session.
 
-**[下载 Windows x64 安装包](https://github.com/mokey001/easydown-douyin/releases/download/v0.1.1/Shiying_0.1.1_x64-setup.exe)** · [v0.1.1 发布说明](https://github.com/mokey001/easydown-douyin/releases/tag/v0.1.1)
+**[下载 Windows x64 安装包](https://github.com/mokey001/easydown-douyin/releases/download/v0.1.1/Shiying_0.1.1_x64-setup.exe)** · [免安装版](https://github.com/mokey001/easydown-douyin/releases/download/v0.1.1/Shiying-0.1.1-Windows-x64-portable.zip) · [完整源码包](https://github.com/mokey001/easydown-douyin/releases/download/v0.1.1/Shiying-0.1.1-source.zip) · [发布说明](https://github.com/mokey001/easydown-douyin/releases/tag/v0.1.1)
 
-> v0.1.1 为预览版，安装包约 18.5 MB，尚未配置代码签名。本仓库公开项目说明和安装包，完整应用源码尚未公开，暂不支持从本仓库编译。
+> v0.1.1 为预览版，安装包约 18.5 MB，尚未配置代码签名。完整源码已公开，包含构建脚本、锁定依赖、测试与第三方许可；项目采用 [MIT 许可](LICENSE)。
 
-[功能与验证](#功能与验证) · [使用流程](#使用流程) · [常见问题](#常见问题) · [反馈需求](https://github.com/mokey001/easydown-douyin/issues)
+[功能与验证](#功能与验证) · [使用流程](#使用流程) · [本地开发](#本地开发) · [常见问题](#常见问题) · [反馈需求](https://github.com/mokey001/easydown-douyin/issues)
 
 ## 拾影解决什么问题
 
@@ -46,17 +46,54 @@ Douyin downloader for Windows, with a desktop GUI, persistent download queue, an
 
 画质、保存位置、主页或合集的作品数量和日期范围，都可以在「偏好设置」中调整。
 
+免安装版解压后运行 `shiying.exe`，请保留同目录下的 `shiying-engine.exe`。免安装仅指不需要安装程序；登录数据和任务记录仍使用本机应用数据目录，不随 ZIP 一起移动。
+
 安装包未签名，请根据系统安全提示审慎判断来源。SHA-256 校验值如下；它用于核对下载文件是否一致，不代替安全审查。
 
 ```text
 70193aa1529357d91ab5ef9464016c221789d1e04cdd5370184c9b00f4b3604b
 ```
 
+免安装版和完整源码包的校验值见发布页附件 `SHA256SUMS-v0.1.1-full.txt`。
+
+## 本地开发
+
+Windows 开发环境：Node.js 22+、Rust 1.96.1（见 `rust-toolchain.toml`）、Visual Studio C++ Build Tools、Python 3.11+、uv 和 WebView2 Runtime。依赖安装和首次编译需要联网。
+
+```powershell
+git clone https://github.com/mokey001/easydown-douyin.git
+cd easydown-douyin
+npm ci
+uv sync --project sidecar --frozen
+./scripts/build-sidecar.ps1
+npm run desktop
+```
+
+构建安装包：
+
+```powershell
+./scripts/build.ps1
+```
+
+安装包位于 `src-tauri/target/release/bundle/nsis/`。构建脚本会先下载锁定的 Rust 依赖，再收集第三方许可。
+
+验证：
+
+```powershell
+npm run test:engine
+npm run build
+cargo check --manifest-path src-tauri/Cargo.toml --locked
+```
+
+`src/` 是中文界面，`src-tauri/src/` 管理窗口和页面请求桥，`sidecar/` 包含下载引擎与本地测试。协议与边界见 [架构说明](docs/architecture.md)。代码库不包含用户登录状态、下载文件、运行时数据库或打包依赖缓存。
+
 ## 常见问题
 
 ### 现在能下载或编译吗？
 
-可以下载 Windows x64 预览版安装包。完整应用源码尚未公开，暂时不能从本仓库编译。GitHub 发布页自动生成的 `Source code` 压缩包只是本仓库的说明文件，不是完整应用源码。
+可以。安装包和免安装版见上方链接；开发者可克隆本仓库的 `main` 分支，或下载 `Shiying-0.1.1-source.zip`。
+
+注意：`v0.1.1` 标签在首次仅发布安装包时已经创建，为保留原发布历史，没有移动这个标签。因此该发布页底部自动生成的 `Source code (zip/tar.gz)` 仍是当时的说明文件快照。完整应用源码请使用具名附件 `Shiying-0.1.1-source.zip` 或 `main` 分支。
 
 ### 一定要登录吗？
 
@@ -82,7 +119,7 @@ Douyin downloader for Windows, with a desktop GUI, persistent download queue, an
 
 ## 技术与致谢
 
-桌面部分使用 Tauri 2、React 和 TypeScript，下载引擎使用 Python。下载核心基于 MIT 许可的 [jiji262/douyin-downloader](https://github.com/jiji262/douyin-downloader)，固定版本为 [`f7ec48f9`](https://github.com/jiji262/douyin-downloader/commit/f7ec48f9cfe1fc80b0093440c62c0c60425c31b2)。本地构建中保留了上游许可和第三方声明。
+桌面部分使用 Tauri 2、React 和 TypeScript，下载引擎使用 Python。下载核心基于 MIT 许可的 [jiji262/douyin-downloader](https://github.com/jiji262/douyin-downloader)，固定版本为 [`f7ec48f9`](https://github.com/jiji262/douyin-downloader/commit/f7ec48f9cfe1fc80b0093440c62c0c60425c31b2)。保留了 [上游许可](sidecar/vendor/LICENSE-jiji.txt) 和 [第三方声明](THIRD_PARTY_NOTICES.txt)。
 
 拾影的桌面界面与页面请求桥为独立实现，没有使用上游未公开的桌面代码。此项目与抖音官方无关联。
 
@@ -92,4 +129,4 @@ Douyin downloader for Windows, with a desktop GUI, persistent download queue, an
 
 Shiying is a Windows desktop app for saving Douyin content you own or have permission to download. It includes a download queue, history, quality preferences, and a local WebView login window. The desktop uses Tauri and React, with a Python engine based on the MIT-licensed project credited above.
 
-**Windows preview available:** download the unsigned x64 installer from the [v0.1.1 release](https://github.com/mokey001/easydown-douyin/releases/tag/v0.1.1). The full application source is not yet public; GitHub's automatic source archives contain documentation only. A local v0.1.1 build passed 15 automated tests and one real-world video download check. Availability across accounts and content is not guaranteed. Feedback on intended use cases is welcome in Issues.
+**Source and Windows preview available:** download the unsigned installer or portable ZIP from the [v0.1.1 release](https://github.com/mokey001/easydown-douyin/releases/tag/v0.1.1). Full source, build scripts and tests are available on `main` under the MIT license, and in the named `Shiying-0.1.1-source.zip` asset. The original v0.1.1 tag remains unchanged, so its automatic source archives contain the earlier documentation snapshot. A local v0.1.1 build passed 15 automated tests and one real-world video download check. Availability across accounts and content is not guaranteed. Feedback on intended use cases is welcome in Issues.
