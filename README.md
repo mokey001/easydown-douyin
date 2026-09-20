@@ -1,94 +1,95 @@
-# 拾影 Shiying Desktop 0.1.1
+# easydown-douyin · 拾影
 
-Windows 抖音下载工具，Tauri 2 + React + Python sidecar。源码和构建脚本随本地交付提供，不依赖第三方解析服务。
+Windows 抖音下载桌面工具。粘贴分享链接，管理视频、图集和批量任务，把自己有权保存的内容留在本地。
 
-## 0.1.1 修复
+Douyin downloader for Windows, with a desktop GUI, persistent download queue, and local login session.
 
-- 修复 Windows 上点击「连接抖音」后，登录窗口空白、主窗口失去响应的问题：窗口改为异步创建，避免 WebView2 初始化死锁。
-- 打开窗口期间显示「正在打开…」，并拦截重复点击。
-- 安装包与便携版保留原来的应用标识和数据位置，不清除账号数据与下载记录。下载引擎本次未改动，版本仍为 0.1.0。
+**[下载 Windows x64 安装包](https://github.com/mokey001/easydown-douyin/releases/download/v0.1.1/Shiying_0.1.1_x64-setup.exe)** · [v0.1.1 发布说明](https://github.com/mokey001/easydown-douyin/releases/tag/v0.1.1)
 
-## 使用
+> v0.1.1 为预览版，安装包约 18.5 MB，尚未配置代码签名。本仓库公开项目说明和安装包，完整应用源码尚未公开，暂不支持从本仓库编译。
 
-1. 运行 Windows 安装包，或解压便携版后运行 `shiying.exe`。便携版内的 `shiying-engine.exe` 必须与主程序放在一起。
-2. 点击「连接抖音」，在独立的抖音窗口完成登录或验证。关闭这个窗口会隐藏它，以便继续提供页面请求。
-3. 粘贴作品、图集、主页、合集链接，或者整段分享文案。可一次添加最多 50 个链接。
-4. 点击「添加下载」。主页/合集默认最多获取 50 个作品，可在偏好设置中调整数量、日期、画质和保存位置。
+[功能与验证](#功能与验证) · [使用流程](#使用流程) · [常见问题](#常见问题) · [反馈需求](https://github.com/mokey001/easydown-douyin/issues)
 
-没有登录时也可以尝试公开内容，但平台可能要求验证。遇到「需要验证」时，打开抖音窗口处理，再点击该任务的重试按钮。
+## 拾影解决什么问题
 
-## 已实现
+保存多个抖音作品时，链接、下载进度和文件位置很容易混在一起。拾影把这些操作放进一个中文桌面窗口：
 
-- 视频、图集、主页已发布作品、合集的下载核心适配。
-- 短链接解析、多链接去重、持久化任务队列、历史记录和搜索。
-- 真实文件字节进度、当前文件速度/预计剩余时间、作品计数。
-- 暂停、继续、取消、重试；退出后未完成任务保留为暂停状态。
-- 最高画质/1080P/720P/节省空间，数量和发布日期筛选。
-- 输出目录、文件名模板、封面和作品 JSON、媒体下载代理。
-- 独立 WebView 登录、页面内请求桥、清除登录、脱敏诊断导出。
+- 粘贴整段分享文案或多条链接，自动识别、去重，一次最多添加 50 个链接。
+- 在队列中查看进度、速度和失败原因，暂停、继续或重试任务。
+- 按画质、发布日期和作品数量筛选，设置保存目录和文件名。
+- 在独立抖音窗口完成登录或验证，无需手动复制 Cookie。
 
-## 当前边界
+当前目标平台是 Windows x64。安装包内置 Python 下载引擎，使用者无需另外配置 Python 环境。
 
-- 这是 Windows 测试版本。使用自有抖音账号的在线验收仍需在使用者的网络环境下完成；本地测试不代表平台所有账号和作品都可下载。
-- 暂停会取消在途传输；继续时跳过已完成作品，未完成文件会重新下载，当前不宣称字节级断点续传。
-- 同时处理一个链接任务，任务中的媒体文件支持 1–4 路并发。
-- 登录窗口显示「页面已连接」仅表示页面加载完成，不表示账号已经登录。
-- 主程序关闭会结束下载，不提供托盘后台驻留。
-- 0.1 不包含直播、喜欢/收藏、音频提取、FFmpeg 转码和自动更新。没有捆绑 FFmpeg 或 yt-dlp。
-- 抖音签名和风控随平台变化，页面桥仍可能需要后续适配；HTTP 403/429 会提示验证，不会无限重试。
-- 当前提供 Windows x64 构建；macOS/Linux 构建与页面桥差异尚未验收。
+## 功能与验证
 
-## 数据位置
+区分「已接入功能」和「已经验证的范围」，方便判断是否适合你的需求。
 
-- 默认文件目录：系统「下载」目录中的 `拾影`。
-- 任务、归档、设置：Tauri 的 `app_data_dir`，Windows 通常为 `%APPDATA%/app.shiying.desktop/`。
-- 登录数据：同一数据目录下的 `douyin-profile`，由 WebView2 管理。
-- 账号 Cookie 不经前端转存，不写入普通配置。诊断导出不包含 Cookie、作品 URL、标题、作者或本地路径。
+| 功能 | 当前验证情况 |
+| --- | --- |
+| 单视频下载 | 一条真实抖音作品已完成在线下载验收，文件为 1080 × 1920、194.5 秒，包含视频与音频；前 5 秒解码检查通过 |
+| 图集、主页已发布作品、合集 | 已接入下载核心；图集传输、主页数量限制经过本地集成测试，线上场景尚未全面验收 |
+| 队列与历史记录 | 任务持久化、暂停、继续、取消、重试、搜索；重启后未完成任务保留为暂停状态 |
+| 文件保存选项 | 画质偏好、日期范围、数量上限、文件名模板，可选保存封面和作品 JSON |
+| 登录窗口 | 0.1.1 已修复 Windows 白屏问题，实机确认抖音页面正常显示、主窗口继续响应 |
 
-## 本地开发
+2026-09-20 的本地验收结果：15 项自动化测试全部通过；打包后的下载引擎通过启动、页面请求桥、文件写入、进度、SQLite 和退出检查。前端与 Windows 安装包构建完成。
 
-环境：Node.js 22+、Rust 1.96.1、Visual Studio C++ Build Tools、Python 3.11+、uv、WebView2 Runtime。
+这些结果不代表所有作品、账号和网络都可下载，也不能保证平台规则变化后仍然适用。
 
-```powershell
-npm ci
-uv sync --project sidecar --frozen
-./scripts/build-sidecar.ps1
-npm run desktop
-```
+## 使用流程
 
-完整打包：
+1. 从 [v0.1.1 发布页](https://github.com/mokey001/easydown-douyin/releases/tag/v0.1.1) 下载 `Shiying_0.1.1_x64-setup.exe`，关闭旧版拾影后安装。
+2. 打开拾影，点击「连接抖音」。平台要求登录或验证码时，由你本人完成。
+3. 粘贴分享链接或整段分享文案，点击「添加下载」。
+4. 在队列中查看任务，完成后点击「打开所在文件夹」。默认保存在系统「下载」目录中的 `拾影` 文件夹。
 
-```powershell
-./scripts/build.ps1
-```
+画质、保存位置、主页或合集的作品数量和日期范围，都可以在「偏好设置」中调整。
 
-安装包位于 `src-tauri/target/release/bundle/nsis/`。
-
-验证：
-
-```powershell
-npm run test:engine
-npm run build
-cargo check --manifest-path src-tauri/Cargo.toml
-```
-
-测试覆盖真实核心的 HTTP 文件传输与校验、归档去重、队列恢复、暂停取消、页面桥响应及敏感字段排除。HTTP 集成测试使用本地可控媒体服务，不会登录抖音。
-
-## 代码结构
+安装包未签名，请根据系统安全提示审慎判断来源。SHA-256 校验值如下；它用于核对下载文件是否一致，不代替安全审查。
 
 ```text
-src/                  React 中文 UI 和类型化 IPC
-src-tauri/src/        窗口、sidecar 管理、页面桥、系统对话框
-src-tauri/capabilities/ 主窗口与远程抖音窗口的独立权限
-sidecar/engine.py     SQLite 队列、状态机、NDJSON 协议
-sidecar/adapter.py    上游核心适配与进度报告
-sidecar/vendor/      固定版本的 MIT 下载核心（未修改）
-sidecar/tests/       本地集成测试与协议测试
-scripts/             Windows 可重复构建脚本
+70193aa1529357d91ab5ef9464016c221789d1e04cdd5370184c9b00f4b3604b
 ```
 
-上游：https://github.com/jiji262/douyin-downloader
+## 常见问题
 
-固定 commit：`f7ec48f9cfe1fc80b0093440c62c0c60425c31b2`。完整 MIT 许可保留在 `sidecar/vendor/LICENSE-jiji.txt`。本项目的页面桥为独立实现，没有使用上游未公开的桌面代码。
+### 现在能下载或编译吗？
 
-# easydown-douyin
+可以下载 Windows x64 预览版安装包。完整应用源码尚未公开，暂时不能从本仓库编译。GitHub 发布页自动生成的 `Source code` 压缩包只是本仓库的说明文件，不是完整应用源码。
+
+### 一定要登录吗？
+
+部分公开内容可以尝试直接下载，但平台可能要求登录或验证。「页面已连接」只表示抖音页面加载完成，不表示账号已经登录。工具不会代你完成验证码，也不提供绕过访问权限的功能。
+
+### 账号和文件放在哪里？
+
+登录状态由本机 WebView2 管理；任务、历史和设置保存在本机。应用不接入第三方解析服务，不将下载完成的文件上传到项目服务器。抖音网页和媒体下载本身仍需要联网。
+
+### 暂停后会从断点继续吗？
+
+继续时会跳过已完成作品，未完成文件可能重新下载；当前不是字节级断点续传。关闭主程序会结束下载，不提供托盘后台驻留。
+
+### 支持哪些平台和功能？
+
+当前仅验收 Windows x64。macOS、Linux、直播录制、喜欢或收藏列表、音频提取、转码和自动更新都不在本版范围。安装包尚未配置代码签名。
+
+## 反馈与关注
+
+欢迎通过 [Issues](https://github.com/mokey001/easydown-douyin/issues) 描述你的使用场景，例如「希望备份自己的主页作品，并按月份整理」。请不要提交 Cookie、密码、手机号或未打码的账号截图。
+
+如果拾影帮你省下了整理链接和文件的时间，可以点一个 Star，或把项目分享给有同样需求的人。反馈时请注明版本、Windows 版本、链接类型和操作步骤，不必提供账号数据。
+
+## 技术与致谢
+
+桌面部分使用 Tauri 2、React 和 TypeScript，下载引擎使用 Python。下载核心基于 MIT 许可的 [jiji262/douyin-downloader](https://github.com/jiji262/douyin-downloader)，固定版本为 [`f7ec48f9`](https://github.com/jiji262/douyin-downloader/commit/f7ec48f9cfe1fc80b0093440c62c0c60425c31b2)。本地构建中保留了上游许可和第三方声明。
+
+拾影的桌面界面与页面请求桥为独立实现，没有使用上游未公开的桌面代码。此项目与抖音官方无关联。
+
+请只保存你拥有权利或已获许可的内容，尊重创作者，并遵守适用的平台规则。
+
+## English overview
+
+Shiying is a Windows desktop app for saving Douyin content you own or have permission to download. It includes a download queue, history, quality preferences, and a local WebView login window. The desktop uses Tauri and React, with a Python engine based on the MIT-licensed project credited above.
+
+**Windows preview available:** download the unsigned x64 installer from the [v0.1.1 release](https://github.com/mokey001/easydown-douyin/releases/tag/v0.1.1). The full application source is not yet public; GitHub's automatic source archives contain documentation only. A local v0.1.1 build passed 15 automated tests and one real-world video download check. Availability across accounts and content is not guaranteed. Feedback on intended use cases is welcome in Issues.
